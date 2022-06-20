@@ -8,9 +8,9 @@ def get_all_companies():
     soup = BeautifulSoup(res.text, 'html.parser').find(
         'div', {'id': 'MainSuperBrand'}).find_all('li', {'class': 'impact'})
     for s in soup:
-        a = s.find('a')
-        company = a.find('span', {'class': 'company'}).string.strip()
-        link = a.get('href').strip()
+        company = clean_string(s.find('a').find(
+            'span', {'class': 'company'}).string)
+        link = clean_string(s.find('a').get('href'))
         result.append((company, link))
     return result
 
@@ -21,14 +21,19 @@ def get_one_job(company, link):
     soup = BeautifulSoup(res.text, 'html.parser').find(
         'div', {'id': 'NormalInfo'}).find('tbody').find_all('tr', {'class': ''})
     for s in soup:
-        place = s.find('td', {'class': 'local first'}).get_text().strip()
-        title = s.find('td', {'class': 'title'}).find(
-            'span', {'class': 'company'}).get_text().strip()
-        time = s.find('td', {'class': 'data'}).find('span').get_text().strip()
-        pay = ''.join([x.get_text().strip()
-                      for x in s.find('td', {'class': 'pay'}).find_all('span')])
-        date = s.find('td', {'class': 'regDate last'}).get_text().strip()
-        print(place, title, time, pay, date)
+        place = clean_string(s.find('td', {'class': 'local first'}).get_text())
+        title = clean_string(s.find('td', {'class': 'title'}).find(
+            'span', {'class': 'company'}).get_text())
+        time = clean_string(
+            s.find('td', {'class': 'data'}).find('span').get_text())
+        pay = clean_string(''.join([x.get_text().strip()
+                                    for x in s.find('td', {'class': 'pay'}).find_all('span')]))
+        date = clean_string(s.find('td', {'class': 'regDate last'}).get_text())
+        print(','.join([place, title, time, pay, date]))
+
+
+def clean_string(string):
+    return ' '.join(string.split())
 
 
 ret = get_all_companies()
